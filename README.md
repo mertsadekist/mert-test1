@@ -37,7 +37,7 @@ Then open [http://localhost:8000/index.php](http://localhost:8000/index.php) in 
 
 ## Bootstrapping an admin user
 
-The `create_admin.php` script can be run once to insert an initial administrator account. Adjust the credentials at the top of the script and then execute:
+The `create_admin.php` script can be run once to insert an initial administrator account. The script contains empty placeholders for the admin email and password; edit these values in the file before executing:
 
 ```bash
 php create_admin.php
