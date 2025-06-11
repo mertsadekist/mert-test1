@@ -10,49 +10,72 @@ if (!isset($_SESSION['user_id'])) {␊
 require_once 'db_connection.php';
 
 $filters = [];
-$where = [];
+$whereParts = [];
+$params = [];
+$types = '';
 
 if (!empty($_GET['developer_id'])) {
     $filters['developer_id'] = $_GET['developer_id'];
-    $where[] = "projects.developer_id = '" . $conn->real_escape_string($_GET['developer_id']) . "'";
+    $whereParts[] = "projects.developer_id = ?";
+    $types .= 's';
+    $params[] = $_GET['developer_id'];
 }
 if (!empty($_GET['project_id'])) {
     $filters['project_id'] = $_GET['project_id'];
-    $where[] = "apartments.project_id = '" . $conn->real_escape_string($_GET['project_id']) . "'";
+    $whereParts[] = "apartments.project_id = ?";
+    $types .= 's';
+    $params[] = $_GET['project_id'];
 }
 if (!empty($_GET['location'])) {
     $filters['location'] = $_GET['location'];
-    $where[] = "projects.location LIKE '%" . $conn->real_escape_string($_GET['location']) . "%'";
+    $whereParts[] = "projects.location LIKE ?";
+    $types .= 's';
+    $params[] = '%' . $_GET['location'] . '%';
 }
 if (!empty($_GET['bedrooms'])) {
     $filters['bedrooms'] = $_GET['bedrooms'];
-    $where[] = "apartments.bedrooms = '" . intval($_GET['bedrooms']) . "'";
+    $whereParts[] = "apartments.bedrooms = ?";
+    $types .= 'i';
+    $params[] = (int)$_GET['bedrooms'];
 }
 if (!empty($_GET['area_min'])) {
     $filters['area_min'] = $_GET['area_min'];
-    $where[] = "apartments.area_sqm >= '" . floatval($_GET['area_min']) . "'";
+    $whereParts[] = "apartments.area_sqm >= ?";
+    $types .= 'd';
+    $params[] = (float)$_GET['area_min'];
 }
 if (!empty($_GET['area_max'])) {
     $filters['area_max'] = $_GET['area_max'];
-    $where[] = "apartments.area_sqm <= '" . floatval($_GET['area_max']) . "'";
+    $whereParts[] = "apartments.area_sqm <= ?";
+    $types .= 'd';
+    $params[] = (float)$_GET['area_max'];
 }
 if (!empty($_GET['price_min'])) {
     $filters['price_min'] = $_GET['price_min'];
-    $where[] = "apartments.price >= '" . floatval($_GET['price_min']) . "'";
+    $whereParts[] = "apartments.price >= ?";
+    $types .= 'd';
+    $params[] = (float)$_GET['price_min'];
 }
 if (!empty($_GET['price_max'])) {
     $filters['price_max'] = $_GET['price_max'];
-    $where[] = "apartments.price <= '" . floatval($_GET['price_max']) . "'";
+    $whereParts[] = "apartments.price <= ?";
+    $types .= 'd';
+    $params[] = (float)$_GET['price_max'];
 }
 
-$where_clause = count($where) ? "WHERE " . implode(" AND ", $where) : "";
+$where_clause = $whereParts ? "WHERE " . implode(" AND ", $whereParts) : "";
 
 $sql = "SELECT apartments.*, projects.name AS project_name, developers.name AS developer_name FROM apartments 
         JOIN projects ON apartments.project_id = projects.id 
         JOIN developers ON projects.developer_id = developers.id 
         $where_clause 
         ORDER BY apartments.id DESC";
-$result = $conn->query($sql);
+$stmt = $conn->prepare($sql);
+if ($types) {
+    $stmt->bind_param($types, ...$params);
+}
+$stmt->execute();
+$result = $stmt->get_result();
 
 $developers = $conn->query("SELECT id, name FROM developers ORDER BY name");
 ?>
