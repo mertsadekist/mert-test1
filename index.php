@@ -10,11 +10,13 @@ if (isset($_SESSION['user_id'])) {
 require_once 'db_connection.php';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $email = $conn->real_escape_string($_POST['email']);
+    $email = $_POST['email'];
     $password = $_POST['password'];
 
-    $query = "SELECT * FROM users WHERE email = '$email' LIMIT 1";
-    $result = $conn->query($query);
+    $stmt = $conn->prepare("SELECT * FROM users WHERE email = ? LIMIT 1");
+    $stmt->bind_param('s', $email);
+    $stmt->execute();
+    $result = $stmt->get_result();
 
     if ($result && $result->num_rows === 1) {
         $user = $result->fetch_assoc();
