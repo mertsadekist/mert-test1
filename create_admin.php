@@ -9,6 +9,7 @@ $conn = new mysqli($host, $user, $pass, $db);
 if ($conn->connect_error) {
     die("Connection failed: " . $conn->connect_error);
 }
+require_once 'db_connection.php';
 
 // Change these as needed
 $name = 'Admin';
@@ -34,4 +35,3 @@ if ($check->num_rows > 0) {
 }
 
 $conn->close();
-?>
