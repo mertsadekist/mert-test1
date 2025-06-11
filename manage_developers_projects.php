@@ -13,18 +13,22 @@ if ($conn->connect_error) {
 
 // Add Developer
 if (isset($_POST['add_developer'])) {
-    $dev_name = $conn->real_escape_string($_POST['developer_name']);
+    $dev_name = $_POST['developer_name'];
     $dev_id = uniqid();
-    $conn->query("INSERT INTO developers (id, name) VALUES ('$dev_id', '$dev_name')");
+    $stmt = $conn->prepare("INSERT INTO developers (id, name) VALUES (?, ?)");
+    $stmt->bind_param('ss', $dev_id, $dev_name);
+    $stmt->execute();
 }
 
 // Add Project
 if (isset($_POST['add_project'])) {
-    $project_name = $conn->real_escape_string($_POST['project_name']);
-    $location = $conn->real_escape_string($_POST['location']);
-    $developer_id = $conn->real_escape_string($_POST['developer_id']);
+    $project_name = $_POST['project_name'];
+    $location = $_POST['location'];
+    $developer_id = $_POST['developer_id'];
     $project_id = uniqid();
-    $conn->query("INSERT INTO projects (id, developer_id, name, location) VALUES ('$project_id', '$developer_id', '$project_name', '$location')");
+     $stmt = $conn->prepare("INSERT INTO projects (id, developer_id, name, location) VALUES (?, ?, ?, ?)");
+    $stmt->bind_param('ssss', $project_id, $developer_id, $project_name, $location);
+    $stmt->execute();
 }
 
 // Fetch all developers
