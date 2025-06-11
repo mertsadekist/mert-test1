@@ -1,6 +1,7 @@
 <?php
 // upload_form.php — Upload Excel with dynamic developer/project selection
 require_once 'db_connection.php';
+require_once 'csrf.php';
 
 $developers = $conn->query("SELECT id, name FROM developers ORDER BY name");
 ?>
@@ -16,6 +17,7 @@ $developers = $conn->query("SELECT id, name FROM developers ORDER BY name");
 <div class="container mt-5">
     <h2>Upload Excel File</h2>
     <form action="process_upload.php" method="post" enctype="multipart/form-data">
+        <input type="hidden" name="csrf_token" value="<?= generate_token() ?>">
         <div class="mb-3">
             <label for="developer_id" class="form-label">Select Developer:</label>
             <select name="developer_id" id="developer_id" class="form-select" required>
