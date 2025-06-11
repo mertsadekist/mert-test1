@@ -6,9 +6,13 @@ if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'admin') {
 // manage_developers_projects.php
 
 require_once 'db_connection.php';
+require_once 'csrf.php';
 
 // Add Developer
 if (isset($_POST['add_developer'])) {
+        if (!verify_token($_POST['csrf_token'] ?? '')) {
+        die('Invalid CSRF token');
+    }
     $dev_name = $_POST['developer_name'];
     $dev_id = uniqid();
     $stmt = $conn->prepare("INSERT INTO developers (id, name) VALUES (?, ?)");
@@ -18,6 +22,9 @@ if (isset($_POST['add_developer'])) {
 
 // Add Project
 if (isset($_POST['add_project'])) {
+        if (!verify_token($_POST['csrf_token'] ?? '')) {
+        die('Invalid CSRF token');
+    }
     $project_name = $_POST['project_name'];
     $location = $_POST['location'];
     $developer_id = $_POST['developer_id'];
@@ -64,6 +71,7 @@ $projects = $conn->query("SELECT p.*, d.name as developer_name FROM projects p J
     <div class="container mt-5">
         <h2>Add New Developer</h2>
         <form method="post" class="mb-5">
+            <input type="hidden" name="csrf_token" value="<?= generate_token() ?>">
             <div class="mb-3">
                 <input type="text" name="developer_name" class="form-control" placeholder="Developer Name" required>
             </div>
@@ -72,6 +80,7 @@ $projects = $conn->query("SELECT p.*, d.name as developer_name FROM projects p J
 
         <h2>Add New Project</h2>
         <form method="post" class="mb-5">
+            <input type="hidden" name="csrf_token" value="<?= generate_token() ?>">
             <div class="mb-3">
                 <input type="text" name="project_name" class="form-control" placeholder="Project Name" required>
             </div>
