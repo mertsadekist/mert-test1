@@ -7,8 +7,12 @@ if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'admin') {
 }
 
 require_once 'db_connection.php';
+require_once 'csrf.php';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+        if (!verify_token($_POST['csrf_token'] ?? '')) {
+        die('Invalid CSRF token');
+    }
     $name = $conn->real_escape_string($_POST['name']);
     $email = $conn->real_escape_string($_POST['email']);
     $password = password_hash($_POST['password'], PASSWORD_DEFAULT);
@@ -61,6 +65,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         <?php if (isset($error)) echo "<div class='alert alert-danger'>$error</div>"; ?>
         <?php if (isset($success)) echo "<div class='alert alert-success'>$success</div>"; ?>
         <form method="post" class="mt-4">
+             <input type="hidden" name="csrf_token" value="<?= generate_token() ?>">
             <div class="mb-3">
                 <label class="form-label">Name:</label>
                 <input type="text" name="name" class="form-control" required>
