@@ -4,8 +4,8 @@ require_once 'db_connection.php';
 
 // Change these as needed
 $name = 'Admin';
-$email = 'admin@example.com';
-$password_plain = 'admin123';
+$email = ''; // Enter admin email before running
+$password_plain = ''; // Enter admin password before running
 $role = 'admin';
 $id = uniqid();
 
