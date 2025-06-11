@@ -46,7 +46,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             </div>
         </nav>";
 
-    echo "<div class='container mt-4'><pre>Developer ID: [" . $developer_id . "]\nProject ID: [" . $project_id . "]\nHex Project ID: [" . bin2hex($project_id) . "]</pre>";
+    // Removed verbose output of developer/project IDs for cleaner interface
+    // echo "<div class='container mt-4'><pre>Developer ID: [" . $developer_id . "]\nProject ID: [" . $project_id . "]\nHex Project ID: [" . bin2hex($project_id) . "]</pre>";
 
     if (!$developer_id || !$project_id || !isset($_FILES['excel_file'])) {
         die("<div class='alert alert-danger'>❌ Missing required input.</div></div></body></html>");
