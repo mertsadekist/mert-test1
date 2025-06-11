@@ -15,28 +15,31 @@ $selected_project = $_POST['project_id'] ?? '';
 $selected_location = $_POST['location'] ?? '';
 
 $developers = $conn->query("SELECT id, name FROM developers ORDER BY name");
-$projects = $selected_developer ? $conn->query("SELECT id, name FROM projects WHERE developer_id = '$selected_developer' ORDER BY name") : [];
+if ($selected_developer) {
+    $proj_stmt = $conn->prepare("SELECT id, name FROM projects WHERE developer_id = ? ORDER BY name");
+    $proj_stmt->bind_param('s', $selected_developer);
+    $proj_stmt->execute();
+    $projects = $proj_stmt->get_result();
+} else {
+    $projects = [];
+}
 $locations = $conn->query("SELECT DISTINCT location FROM projects WHERE location IS NOT NULL AND location != '' ORDER BY location");
 $result = null;
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $conditions = [];
     if (!empty($selected_project)) {
-        $conditions[] = "project_id = '$selected_project'";
+        $stmt = $conn->prepare("SELECT * FROM apartments WHERE project_id = ? ORDER BY floor, unit_number");
+        $stmt->bind_param('s', $selected_project);
+        $stmt->execute();
+        $result = $stmt->get_result();
     } elseif (!empty($selected_location)) {
-        $location_safe = $conn->real_escape_string($selected_location);
-        $project_ids_query = $conn->query("SELECT id FROM projects WHERE location = '$location_safe'");
-        $ids = [];
-        while ($row = $project_ids_query->fetch_assoc()) {
-            $ids[] = "'{$row['id']}'";
-        }
-        if ($ids) {
-            $conditions[] = "project_id IN (" . implode(",", $ids) . ")";
-        }
+        $stmt = $conn->prepare("SELECT a.* FROM apartments a JOIN projects p ON a.project_id = p.id WHERE p.location = ? ORDER BY a.floor, a.unit_number");
+        $stmt->bind_param('s', $selected_location);
+        $stmt->execute();
+        $result = $stmt->get_result();
+    } else {
+        $result = null;
     }
-    $where = $conditions ? "WHERE " . implode(" AND ", $conditions) : "";
-    $query = "SELECT * FROM apartments $where ORDER BY floor, unit_number";
-    $result = $conn->query($query);
 }
 ?>
 
