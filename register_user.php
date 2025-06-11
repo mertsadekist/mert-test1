@@ -56,7 +56,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     <li class="nav-item"><a class="nav-link" href="dashboard.php">Dashboard</a></li>
                     <li class="nav-item"><a class="nav-link" href="upload_form.php">Upload Excel</a></li>
                     <li class="nav-item"><a class="nav-link" href="manage_developers_projects.php">Manage Projects</a></li>
-                    <li class="nav-item"><a class="nav-link" href="display_apartments.php?project_id=YOUR_PROJECT_ID">View Apartments</a></li>
+                    <li class="nav-item"><a class="nav-link" href="display_apartments.php">View Apartments</a></li>
                     <li class="nav-item"><a class="nav-link active" href="#">Register User</a></li>
                     <li class="nav-item"><a class="nav-link" href="logout.php">Logout</a></li>
                 </ul>
