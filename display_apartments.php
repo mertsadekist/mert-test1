@@ -1,14 +1,6 @@
 <?php
 // display_apartments.php with advanced filter
-$host = 'localhost';
-$db = 'u891594679_stoks';
-$user = 'u891594679_stoks';
-$pass = '^1QQHgpeQ7o';
-
-$conn = new mysqli($host, $user, $pass, $db);
-if ($conn->connect_error) {
-    die("Connection failed: " . $conn->connect_error);
-}
+require_once 'db_connection.php';
 
 $selected_developer = $_POST['developer_id'] ?? '';
 $selected_project = $_POST['project_id'] ?? '';
