@@ -6,10 +6,14 @@ if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'admin') {
 }
 
 require_once 'db_connection.php';
+require_once 'csrf.php';
 $alert = '';
 
 // Add new user
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['action'] === 'add') {
+    if (!verify_token($_POST['csrf_token'] ?? '')) {
+        die('Invalid CSRF token');
+    }
     $name = $_POST['name'];
     $email = $_POST['email'];
     $password = password_hash($_POST['password'], PASSWORD_DEFAULT);
@@ -34,6 +38,9 @@ if (isset($_GET['delete'])) {
 
 // Update password or role
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['action'] === 'update') {
+    if (!verify_token($_POST['csrf_token'] ?? '')) {
+        die('Invalid CSRF token');
+    }
     $id = intval($_POST['user_id']);
     $role = $_POST['role'];
 
@@ -87,6 +94,7 @@ $users = $stmt->get_result();
 
     <h4>Add New User</h4>
     <form method="post" class="row g-3">
+        <input type="hidden" name="csrf_token" value="<?= generate_token() ?>">
         <input type="hidden" name="action" value="add">
         <div class="col-md-3"><input type="text" name="name" class="form-control" placeholder="Name" required></div>
         <div class="col-md-3"><input type="email" name="email" class="form-control" placeholder="Email" required></div>
@@ -119,6 +127,7 @@ $users = $stmt->get_result();
                     <td><?= htmlspecialchars($user['role']) ?></td>
                     <td>
                         <form method="post" class="row g-2">
+                            <input type="hidden" name="csrf_token" value="<?= generate_token() ?>">
                             <input type="hidden" name="action" value="update">
                             <input type="hidden" name="user_id" value="<?= $user['id'] ?>">
                             <div class="col-md-5">

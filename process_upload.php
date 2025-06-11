@@ -9,11 +9,15 @@ ini_set('display_errors', 1);
 error_reporting(E_ALL);
 
 require_once 'db_connection.php';
+require_once 'csrf.php';
 
 require 'vendor/autoload.php';
 use PhpOffice\PhpSpreadsheet\IOFactory;
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    if (!verify_token($_POST['csrf_token'] ?? '')) {
+        die('Invalid CSRF token');
+    }
     $developer_id = $_POST['developer_id'] ?? '';
     $project_id = $_POST['project_id'] ?? '';
     $user_id = $_SESSION['user_id'] ?? null;
