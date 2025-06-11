@@ -1,6 +1,7 @@
 <?php
 // display_apartments.php with advanced filter
 require_once 'db_connection.php';
+require_once 'csrf.php';
 
 $selected_developer = $_POST['developer_id'] ?? '';
 $selected_project = $_POST['project_id'] ?? '';
@@ -19,6 +20,9 @@ $locations = $conn->query("SELECT DISTINCT location FROM projects WHERE location
 $result = null;
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    if (!verify_token($_POST['csrf_token'] ?? '')) {
+        die('Invalid CSRF token');
+    }
     if (!empty($selected_project)) {
         $stmt = $conn->prepare("SELECT * FROM apartments WHERE project_id = ? ORDER BY floor, unit_number");
         $stmt->bind_param('s', $selected_project);
@@ -66,6 +70,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <div class="container mt-5">
     <h2 class="mb-4">Filter Apartments</h2>
     <form method="post" class="row g-3 mb-4">
+        <input type="hidden" name="csrf_token" value="<?= generate_token() ?>">
         <div class="col-md-4">
             <label class="form-label">Developer</label>
             <select name="developer_id" class="form-select" onchange="this.form.submit()">
