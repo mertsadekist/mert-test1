@@ -10,12 +10,14 @@ $alert = '';
 
 // Add new user
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['action'] === 'add') {
-    $name = $conn->real_escape_string($_POST['name']);
-    $email = $conn->real_escape_string($_POST['email']);
+    $name = $_POST['name'];
+    $email = $_POST['email'];
     $password = password_hash($_POST['password'], PASSWORD_DEFAULT);
-    $role = $conn->real_escape_string($_POST['role']);
+    $role = $_POST['role'];
 
-    if ($conn->query("INSERT INTO users (name, email, password_hash, role) VALUES ('$name', '$email', '$password', '$role')")) {
+    $stmt = $conn->prepare("INSERT INTO users (name, email, password_hash, role) VALUES (?, ?, ?, ?)");
+    $stmt->bind_param('ssss', $name, $email, $password, $role);
+    if ($stmt->execute()) {
         $alert = 'User added successfully!';
     }
 }
@@ -23,7 +25,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
 // Delete user
 if (isset($_GET['delete'])) {
     $id = intval($_GET['delete']);
-    $conn->query("DELETE FROM users WHERE id = $id");
+    $stmt = $conn->prepare("DELETE FROM users WHERE id = ?");
+    $stmt->bind_param('i', $id);
+    $stmt->execute();
     header("Location: manage_users.php?deleted=1");
     exit();
 }
@@ -31,21 +35,28 @@ if (isset($_GET['delete'])) {
 // Update password or role
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['action'] === 'update') {
     $id = intval($_POST['user_id']);
-    $role = $conn->real_escape_string($_POST['role']);
+    $role = $_POST['role'];
 
     if (!empty($_POST['new_password'])) {
         $new_password = password_hash($_POST['new_password'], PASSWORD_DEFAULT);
-        $conn->query("UPDATE users SET password_hash = '$new_password', role = '$role' WHERE id = $id");
+        $stmt = $conn->prepare("UPDATE users SET password_hash = ?, role = ? WHERE id = ?");
+        $stmt->bind_param('ssi', $new_password, $role, $id);
+        $stmt->execute();
         $alert = 'Password and role updated successfully!';
     } else {
-        $conn->query("UPDATE users SET role = '$role' WHERE id = $id");
+        $stmt = $conn->prepare("UPDATE users SET role = ? WHERE id = ?");
+        $stmt->bind_param('si', $role, $id);
+        $stmt->execute();
         $alert = 'Role updated successfully!';
     }
 }
 
-$search = isset($_GET['search']) ? $conn->real_escape_string($_GET['search']) : '';
-$query = "SELECT * FROM users WHERE name LIKE '%$search%' OR email LIKE '%$search%' ORDER BY name";
-$users = $conn->query($query);
+$search = isset($_GET['search']) ? $_GET['search'] : '';
+$like = '%' . $search . '%';
+$stmt = $conn->prepare("SELECT * FROM users WHERE name LIKE ? OR email LIKE ? ORDER BY name");
+$stmt->bind_param('ss', $like, $like);
+$stmt->execute();
+$users = $stmt->get_result();
 ?>
 <!DOCTYPE html>
 <html lang="en">
