@@ -5,15 +5,7 @@ session_start();
 ini_set('display_errors', 1);
 error_reporting(E_ALL);
 
-$host = 'localhost';
-$db = 'u891594679_stoks';
-$user = 'u891594679_stoks';
-$pass = '^1QQHgpeQ7o';
-
-$conn = new mysqli($host, $user, $pass, $db);
-if ($conn->connect_error) {
-    die("Connection failed: " . $conn->connect_error);
-}
+require_once 'db_connection.php';
 
 require 'vendor/autoload.php';
 use PhpOffice\PhpSpreadsheet\IOFactory;
