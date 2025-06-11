@@ -8,8 +8,12 @@ if (isset($_SESSION['user_id'])) {
 }
 
 require_once 'db_connection.php';
+require_once 'csrf.php';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    if (!verify_token($_POST['csrf_token'] ?? '')) {
+        die('Invalid CSRF token');
+    }
     $email = $_POST['email'];
     $password = $_POST['password'];
 
@@ -65,6 +69,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         <h3 class="mb-4">IST Real Estate Admin</h3>
         <?php if (isset($error)) echo "<div class='alert alert-danger'>$error</div>"; ?>
         <form method="post">
+            <input type="hidden" name="csrf_token" value="<?= generate_token() ?>">
             <div class="mb-3">
                 <input type="email" name="email" class="form-control" placeholder="Email" required>
             </div>
