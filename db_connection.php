@@ -1,11 +1,10 @@
 <?php
-// db_connection.php
-$host = 'localhost';
-$db = 'u891594679_stoks';
-$user = 'u891594679_stoks';
-$pass = '^1QQHgpeQ7o';
+// db_connection.php - establish a database connection
 
 $conn = new mysqli($host, $user, $pass, $db);
+require_once __DIR__ . '/config.php';
+
+$conn = new mysqli(DB_HOST, DB_USER, DB_PASS, DB_NAME);
 
 if ($conn->connect_error) {
     die("Connection failed: " . $conn->connect_error);
