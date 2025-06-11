@@ -1,0 +1,12 @@
+# Dependency directory
+/vendor/
+
+# Environment file
+.env
+
+# Temporary files
+*.log
+*.tmp
+*.swp
+.DS_Store
+Thumbs.db
