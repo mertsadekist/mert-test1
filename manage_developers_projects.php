@@ -1,4 +1,8 @@
 <?php
+session_start();
+if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'admin') {
+    die('Access denied.');
+}
 // manage_developers_projects.php
 
 require_once 'db_connection.php';
