@@ -7,9 +7,11 @@ if (!isset($_GET['developer_id'])) {
     exit;
 }
 
-$developer_id = $conn->real_escape_string($_GET['developer_id']);
-$sql = "SELECT id, name FROM projects WHERE developer_id = '$developer_id' ORDER BY name";
-$result = $conn->query($sql);
+$developer_id = $_GET['developer_id'];
+$stmt = $conn->prepare("SELECT id, name FROM projects WHERE developer_id = ? ORDER BY name");
+$stmt->bind_param('s', $developer_id);
+$stmt->execute();
+$result = $stmt->get_result();
 
 $projects = [];
 if ($result && $result->num_rows > 0) {
