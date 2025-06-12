@@ -1,7 +1,6 @@
 <?php
 require_once 'auth.php';
-require_once 'roles.php';
-require_role([ROLE_ADMIN]);
+require_capability('manage_projects');
 // manage_developers_projects.php
 
 require_once 'db_connection.php';
