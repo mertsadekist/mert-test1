@@ -16,3 +16,23 @@ const ROLES = [
     ROLE_EDITOR,
     ROLE_ADMIN,
 ];
+
+
+
+/**
+ * Capabilities assigned to each role
+ */
+const ROLE_CAPABILITIES = [
+    ROLE_VIEWER => [],
+    ROLE_EDITOR => [
+        'manage_projects',
+        'upload_apartments',
+        'export_data',
+    ],
+    ROLE_ADMIN => [
+        'manage_projects',
+        'upload_apartments',
+        'export_data',
+        'manage_users',
+    ],
+];
