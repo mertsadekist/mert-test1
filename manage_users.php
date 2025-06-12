@@ -1,9 +1,7 @@
 <?php
 // manage_users.php
-session_start();
-if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'admin') {
-    die("Access denied. Admins only.");
-}
+require_once 'auth.php';
+require_role(['admin']);
 
 require_once 'db_connection.php';
 require_once 'csrf.php';
