@@ -2,10 +2,10 @@
 // all_apartments.php
 session_start();
 
-if (!isset($_SESSION['user_id'])) {␊
+if (!isset($_SESSION['user_id'])) {
     header("Location: index.php");
-    exit();␊
-}␊
+    exit();
+}
 
 require_once 'db_connection.php';
 
