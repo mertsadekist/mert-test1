@@ -1,7 +1,8 @@
 <?php
 // manage_users.php
 require_once 'auth.php';
-require_role(['admin']);
+require_once 'roles.php';
+require_role([ROLE_ADMIN]);
 
 require_once 'db_connection.php';
 require_once 'csrf.php';
@@ -16,6 +17,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
     $email = $_POST['email'];
     $password = password_hash($_POST['password'], PASSWORD_DEFAULT);
     $role = $_POST['role'];
+    if (!in_array($role, ROLES, true)) {
+        die('Invalid role');
+    }
 
     $stmt = $conn->prepare("INSERT INTO users (name, email, password_hash, role) VALUES (?, ?, ?, ?)");
     $stmt->bind_param('ssss', $name, $email, $password, $role);
@@ -41,6 +45,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
     }
     $id = intval($_POST['user_id']);
     $role = $_POST['role'];
+    if (!in_array($role, ROLES, true)) {
+        die('Invalid role');
+    }
 
     if (!empty($_POST['new_password'])) {
         $new_password = password_hash($_POST['new_password'], PASSWORD_DEFAULT);
@@ -99,8 +106,9 @@ $users = $stmt->get_result();
         <div class="col-md-3"><input type="password" name="password" class="form-control" placeholder="Password" required></div>
         <div class="col-md-2">
             <select name="role" class="form-control">
-                <option value="user">User</option>
-                <option value="admin">Admin</option>
+                <option value="<?= ROLE_VIEWER ?>">Viewer</option>
+                <option value="<?= ROLE_EDITOR ?>">Editor</option>
+                <option value="<?= ROLE_ADMIN ?>">Admin</option>
             </select>
         </div>
         <div class="col-md-1"><button type="submit" class="btn btn-primary">Add</button></div>
@@ -130,8 +138,9 @@ $users = $stmt->get_result();
                             <input type="hidden" name="user_id" value="<?= $user['id'] ?>">
                             <div class="col-md-5">
                                 <select name="role" class="form-control">
-                                    <option value="user" <?= $user['role'] === 'user' ? 'selected' : '' ?>>User</option>
-                                    <option value="admin" <?= $user['role'] === 'admin' ? 'selected' : '' ?>>Admin</option>
+                                    <option value="<?= ROLE_VIEWER ?>" <?= $user['role'] === ROLE_VIEWER ? 'selected' : '' ?>>Viewer</option>
+                                    <option value="<?= ROLE_EDITOR ?>" <?= $user['role'] === ROLE_EDITOR ? 'selected' : '' ?>>Editor</option>
+                                    <option value="<?= ROLE_ADMIN ?>" <?= $user['role'] === ROLE_ADMIN ? 'selected' : '' ?>>Admin</option>
                                 </select>
                             </div>
                             <div class="col-md-5"><input type="password" name="new_password" class="form-control" placeholder="New Password"></div>

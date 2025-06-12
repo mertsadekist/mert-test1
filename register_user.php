@@ -1,7 +1,8 @@
 <?php
 // register_user.php
 require_once 'auth.php';
-require_role(['admin']);
+require_once 'roles.php';
+require_role([ROLE_ADMIN]);
 
 require_once 'db_connection.php';
 require_once 'csrf.php';
@@ -14,6 +15,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $email = $conn->real_escape_string($_POST['email']);
     $password = password_hash($_POST['password'], PASSWORD_DEFAULT);
     $role = $conn->real_escape_string($_POST['role']);
+    if (!in_array($role, ROLES, true)) {
+        die('Invalid role');
+    }
     $id = uniqid();
 
     $check = $conn->query("SELECT id FROM users WHERE email = '$email'");
@@ -78,9 +82,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             <div class="mb-3">
                 <label class="form-label">Role:</label>
                 <select name="role" class="form-select" required>
-                    <option value="viewer">Viewer</option>
-                    <option value="editor">Editor</option>
-                    <option value="admin">Admin</option>
+                    <option value="<?= ROLE_VIEWER ?>">Viewer</option>
+                    <option value="<?= ROLE_EDITOR ?>">Editor</option>
+                    <option value="<?= ROLE_ADMIN ?>">Admin</option>
                 </select>
             </div>
             <button type="submit" class="btn btn-primary">Register User</button>
