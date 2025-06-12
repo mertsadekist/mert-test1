@@ -1,4 +1,4 @@
-# Mert Real Estate Admin
+# IST Real Estate Stok Tracking System - By Mert Sadek
 
 This project is a lightweight PHP administration panel used to manage real estate
 listings. It includes user authentication, role based permissions and tools for
