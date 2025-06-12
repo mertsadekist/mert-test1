@@ -1,9 +1,7 @@
 <?php
 // process_upload.php
-session_start();
-if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'admin') {
-    die('Access denied.');
-}
+require_once 'auth.php';
+require_role(['admin']);
 
 ini_set('display_errors', 1);
 error_reporting(E_ALL);
