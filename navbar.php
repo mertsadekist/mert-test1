@@ -13,8 +13,12 @@ require_once 'roles.php';
         <div class="collapse navbar-collapse" id="navbarNav">
             <ul class="navbar-nav">
                 <li class="nav-item"><a class="nav-link" href="dashboard.php">Dashboard</a></li>
-                <li class="nav-item"><a class="nav-link" href="upload_form.php">Upload Excel</a></li>
-                <li class="nav-item"><a class="nav-link" href="manage_developers_projects.php">Manage Projects</a></li>
+                <?php if (has_role([ROLE_EDITOR, ROLE_ADMIN])) { ?>
+                    <li class="nav-item"><a class="nav-link" href="upload_form.php">Upload Excel</a></li>
+                <?php } ?>
+                <?php if (has_role([ROLE_EDITOR, ROLE_ADMIN])) { ?>
+                    <li class="nav-item"><a class="nav-link" href="manage_developers_projects.php">Manage Projects</a></li>
+                <?php } ?>
                 <li class="nav-item"><a class="nav-link" href="display_apartments.php">View By Project</a></li>
                 <li class="nav-item"><a class="nav-link" href="all_apartments.php">Filter All Apartments</a></li>
                 <?php if (has_role([ROLE_ADMIN])) { ?>
