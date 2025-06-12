@@ -16,7 +16,7 @@ require_once 'auth.php';
                 <li class="nav-item"><a class="nav-link" href="manage_developers_projects.php">Manage Projects</a></li>
                 <li class="nav-item"><a class="nav-link" href="display_apartments.php">View By Project</a></li>
                 <li class="nav-item"><a class="nav-link" href="all_apartments.php">Filter All Apartments</a></li>
-                <?php if ($role === 'admin') { ?>
+                <?php if (has_role(['admin'])) { ?>
                     <li class="nav-item"><a class="nav-link" href="register_user.php">Register User</a></li>
                 <?php } ?>
                 <li class="nav-item"><a class="nav-link" href="logout.php">Logout</a></li>
