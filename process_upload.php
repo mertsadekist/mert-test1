@@ -1,7 +1,8 @@
 <?php
 // process_upload.php
 require_once 'auth.php';
-require_role(['admin']);
+require_once 'roles.php';
+require_role([ROLE_ADMIN]);
 
 ini_set('display_errors', 1);
 error_reporting(E_ALL);
