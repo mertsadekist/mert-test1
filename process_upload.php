@@ -1,8 +1,7 @@
 <?php
 // process_upload.php
 require_once 'auth.php';
-require_once 'roles.php';
-require_role([ROLE_ADMIN]);
+require_capability('upload_apartments');
 
 ini_set('display_errors', 1);
 error_reporting(E_ALL);
