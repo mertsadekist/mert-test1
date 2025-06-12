@@ -1,8 +1,7 @@
 <?php
 // export_excel.php
 require_once 'auth.php';
-require_once 'roles.php';
-require_role([ROLE_EDITOR, ROLE_ADMIN]);
+require_capability('export_data')
 
 require 'db_connection.php';
 require 'vendor/autoload.php';
