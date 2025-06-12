@@ -1,10 +1,7 @@
 <?php
 // register_user.php
-session_start();
-
-if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'admin') {
-    die("Access denied. Admins only.");
-}
+require_once 'auth.php';
+require_role(['admin']);
 
 require_once 'db_connection.php';
 require_once 'csrf.php';
