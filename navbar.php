@@ -1,10 +1,6 @@
 <?php
 // navbar.php
-if (session_status() == PHP_SESSION_NONE) {
-    session_start();
-}
-
-$role = $_SESSION['role'] ?? '';
+require_once 'auth.php';
 ?>
 
 <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
