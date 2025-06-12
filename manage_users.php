@@ -1,7 +1,8 @@
 <?php
 // manage_users.php
 require_once 'auth.php';
-require_role(['admin']);
+require_once 'roles.php';
+require_role([ROLE_ADMIN]);
 
 require_once 'db_connection.php';
 require_once 'csrf.php';
