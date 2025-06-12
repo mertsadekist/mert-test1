@@ -17,6 +17,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
     $email = $_POST['email'];
     $password = password_hash($_POST['password'], PASSWORD_DEFAULT);
     $role = $_POST['role'];
+    if (!in_array($role, ROLES, true)) {
+        die('Invalid role');
+    }
 
     $stmt = $conn->prepare("INSERT INTO users (name, email, password_hash, role) VALUES (?, ?, ?, ?)");
     $stmt->bind_param('ssss', $name, $email, $password, $role);
