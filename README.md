@@ -1,6 +1,16 @@
 # Mert Real Estate Admin
 
-This project is a simple PHP web application for managing real estate listings and users.
+This project is a lightweight PHP administration panel used to manage real estate
+listings. It includes user authentication, role based permissions and tools for
+importing, viewing and exporting apartment data.
+
+## Features
+
+- Manage developers and their projects.
+- Upload apartment data from Excel spreadsheets.
+- Filter apartments across projects by developer, location, bedrooms, area and price.
+- Export filtered results to Excel (via PhpSpreadsheet) or PDF (via Dompdf).
+- Role based access control with admin, editor and viewer roles.
 
 ## Requirements
 
@@ -50,6 +60,6 @@ After logging in with this account, you can manage users from the dashboard.
 
 The application defines three roles:
 
-- **viewer** – can view listings.
-- **editor** – can upload and edit apartment data.
-- **admin** – full access including user management.
+- **viewer** – can browse apartment listings.
+- **editor** – can manage projects, upload apartment spreadsheets and export data.
+- **admin** – full access including user management in addition to editor rights.
