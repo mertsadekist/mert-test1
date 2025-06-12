@@ -1,12 +1,13 @@
 <?php
 // create_admin.php — Run this once to insert the first admin user
 require_once 'db_connection.php';
+require_once 'roles.php';
 
 // Change these as needed
 $name = 'Admin';
 $email = ''; // Enter admin email before running
 $password_plain = ''; // Enter admin password before running
-$role = 'admin';
+$role = ROLE_ADMIN;
 $id = uniqid();
 
 // Hash the password
