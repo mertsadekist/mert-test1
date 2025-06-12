@@ -44,3 +44,12 @@ php create_admin.php
 ```
 
 After logging in with this account, you can manage users from the dashboard.
+
+
+## Roles
+
+The application defines three roles:
+
+- **viewer** – can view listings.
+- **editor** – can upload and edit apartment data.
+- **admin** – full access including user management.
