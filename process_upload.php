@@ -1,14 +1,33 @@
 <?php
 // process_upload.php
+require_once 'config.php';
 require_once 'auth.php';
+require_once 'includes/SecurityHelper.php';
+require_once 'includes/SessionManager.php';
+
+// Initialize security and session management
+$security = SecurityHelper::getInstance();
+$session = SessionManager::getInstance();
+$config = Config::getInstance();
+
+// Validate session and permissions
+if (!$session->validateSession()) {
+    header('Location: index.php');
+    exit();
+}
 require_capability('upload_apartments');
 
-ini_set('display_errors', 1);
-error_reporting(E_ALL);
+// Only show errors if debug mode is enabled
+if ($config->get('app.debug')) {
+    ini_set('display_errors', 1);
+    error_reporting(E_ALL);
+} else {
+    ini_set('display_errors', 0);
+    error_reporting(0);
+}
 
 require_once 'db_connection.php';
 require_once 'csrf.php';
-
 require 'vendor/autoload.php';
 use PhpOffice\PhpSpreadsheet\IOFactory;
 
@@ -16,32 +35,29 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if (!verify_token($_POST['csrf_token'] ?? '')) {
         die('Invalid CSRF token');
     }
-    $developer_id = $_POST['developer_id'] ?? '';
-    $project_id = $_POST['project_id'] ?? '';
-    $user_id = $_SESSION['user_id'] ?? null;
-    $user_name = $_SESSION['user_name'] ?? 'unknown';
-    $file_name = $_FILES['excel_file']['name'] ?? '';
+
+    // Sanitize and validate input
+    $developer_id = filter_input(INPUT_POST, 'developer_id', FILTER_VALIDATE_INT);
+    $project_id = filter_input(INPUT_POST, 'project_id', FILTER_VALIDATE_INT);
+    $user_id = $session->getSessionValue('user_id');
+    $user_name = $session->getSessionValue('user_name', 'unknown');
+
+    // Validate file upload
+    if (!isset($_FILES['excel_file']) || $_FILES['excel_file']['error'] !== UPLOAD_ERR_OK) {
+        die("<div class='alert alert-danger'>❌ File upload failed.</div>");
+    }
+
+    // Validate file using SecurityHelper
+    if (!$security->validateFileUpload($_FILES['excel_file'], ['xlsx', 'xls'])) {
+        die("<div class='alert alert-danger'>❌ Invalid file type or size.</div>");
+    }
+
+    // Generate secure filename
+    $original_filename = $_FILES['excel_file']['name'];
+    $secure_filename = $security->generateSecureFilename($original_filename);
 
     echo "<html><head><link href='https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css' rel='stylesheet'></head><body>";
-    echo "<nav class='navbar navbar-expand-lg navbar-dark bg-dark'>
-            <div class='container-fluid'>
-                <a class='navbar-brand' href='#'>Real Estate Admin</a>
-                <button class='navbar-toggler' type='button' data-bs-toggle='collapse' data-bs-target='#navbarNav'>
-                    <span class='navbar-toggler-icon'></span>
-                </button>
-                <div class='collapse navbar-collapse' id='navbarNav'>
-                    <ul class='navbar-nav'>
-                        <li class='nav-item'><a class='nav-link' href='dashboard.php'>Dashboard</a></li>
-                        <li class='nav-item'><a class='nav-link' href='upload_form.php'>Upload Excel</a></li>
-                        <li class='nav-item'><a class='nav-link' href='manage_developers_projects.php'>Manage Projects</a></li>
-                        <li class='nav-item'><a class='nav-link' href='display_apartments.php'>View By Project</a></li>
-                        <li class='nav-item'><a class='nav-link' href='all_apartments.php'>Filter All Apartments</a></li>
-                        <li class='nav-item'><a class='nav-link' href='register_user.php'>Register User</a></li>
-                        <li class='nav-item'><a class='nav-link' href='logout.php'>Logout</a></li>
-                    </ul>
-                </div>
-            </div>
-        </nav>";
+    include 'includes/MainNavbar.php';
 
     if (!$developer_id || !$project_id || !isset($_FILES['excel_file'])) {
         die("<div class='alert alert-danger'>❌ Missing required input.</div></div></body></html>");

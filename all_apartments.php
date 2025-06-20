@@ -80,98 +80,272 @@ $result = $stmt->get_result();
 $developers = $conn->query("SELECT id, name FROM developers ORDER BY name");
 ?>
 <!DOCTYPE html>
-<html>
+<html lang="ar" dir="rtl">
 <head>
-    <title>All Apartments</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>عرض الشقق</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <script>
-        function fetchProjects(developerId) {
-            fetch('get_projects.php?developer_id=' + developerId)
-                .then(response => response.json())
-                .then(data => {
-                    const projectSelect = document.getElementById('project_id');
-                    projectSelect.innerHTML = '<option value="">-- Project --</option>';
-                    data.forEach(project => {
-                        const option = document.createElement('option');
-                        option.value = project.id;
-                        option.textContent = project.name;
-                        projectSelect.appendChild(option);
-                    });
-                });
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        body {
+            background-color: #f8f9fa;
+            direction: rtl;
+            text-align: right;
         }
+
+        .filter-card {
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 0 15px rgba(0,0,0,0.1);
+            margin-bottom: 2rem;
+        }
+
+        .filter-card .card-header {
+            background: #f8f9fa;
+            border-radius: 15px 15px 0 0;
+            padding: 1.5rem;
+        }
+
+        .filter-card .card-body {
+            padding: 2rem;
+        }
+
+        .filter-form label {
+            font-weight: 600;
+            color: #495057;
+            margin-bottom: 0.5rem;
+        }
+
+        .filter-form .form-control,
+        .filter-form .form-select {
+            border-radius: 8px;
+            border: 1px solid #dee2e6;
+            padding: 0.75rem;
+        }
+
+        .apartment-card {
+            border: none;
+            border-radius: 15px;
+            box-shadow: 0 0 15px rgba(0,0,0,0.1);
+            transition: transform 0.3s ease;
+        }
+
+        .apartment-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .apartment-card .card-header {
+            border-radius: 15px 15px 0 0;
+            padding: 1rem;
+        }
+
+        .apartment-details .detail-item {
+            margin-bottom: 1rem;
+            padding: 0.5rem;
+            border-bottom: 1px solid #eee;
+        }
+
+        .apartment-details .detail-item:last-child {
+            border-bottom: none;
+        }
+
+        .apartment-details .detail-item i {
+            color: #0d6efd;
+            width: 20px;
+        }
+
+        .apartment-details .price {
+            font-size: 1.1rem;
+            font-weight: bold;
+            color: #198754;
+        }
+
+        .btn-group .btn {
+            border-radius: 8px;
+            margin-right: 0.5rem;
+        }
+
+        .alert {
+            border-radius: 10px;
+            padding: 1rem;
+        }
+    </style>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const selectedDeveloperId = urlParams.get('developer_id');
+            const selectedProjectId = urlParams.get('project_id');
+
+            if (selectedDeveloperId) {
+                fetchProjects(selectedDeveloperId, selectedProjectId);
+            }
+        });
+
+        async function fetchProjects(developerId, selectedProjectId = '') {
+            const projectSelect = document.getElementById('project_id');
+            
+            if (!developerId) {
+                projectSelect.innerHTML = '<option value="">-- اختر المشروع --</option>';
+                return;
+            }
+
+            projectSelect.innerHTML = '<option value="">جاري التحميل...</option>';
+            projectSelect.disabled = true;
+
+            try {
+                const response = await fetch('get_projects.php?developer_id=' + developerId);
+                if (!response.ok) throw new Error('فشل في جلب البيانات');
+                
+                const projects = await response.json();
+                let options = '<option value="">-- اختر المشروع --</option>';
+                
+                projects.forEach(project => {
+                    options += `<option value="${project.id}" ${project.id == selectedProjectId ? 'selected' : ''}>
+                        ${project.name}
+                    </option>`;
+                });
+
+                projectSelect.innerHTML = options;
+            } catch (error) {
+                console.error('خطأ:', error);
+                projectSelect.innerHTML = '<option value="">حدث خطأ في جلب المشاريع</option>';
+            } finally {
+                projectSelect.disabled = false;
+            }
+        }
+
+        document.querySelector('.filter-form').addEventListener('submit', function(e) {
+            const submitBtn = this.querySelector('button[type="submit"]');
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-1"></i> جاري البحث...';
+        });
     </script>
 </head>
 <body>
 <?php include 'navbar.php'; ?>
 <div class="container mt-4">
-    <h2>All Apartments</h2>
-    <form method="get" class="row g-3">
-        <div class="col-md-3">
-            <select name="developer_id" class="form-control" onchange="fetchProjects(this.value)">
-                <option value="">-- Developer --</option>
-                <?php if ($developers): while($dev = $developers->fetch_assoc()): ?>
-                    <option value="<?= $dev['id'] ?>" <?= (isset($_GET['developer_id']) && $_GET['developer_id'] == $dev['id']) ? 'selected' : '' ?>>
-                        <?= htmlspecialchars($dev['name']) ?>
-                    </option>
-                <?php endwhile; endif; ?>
-            </select>
+    <div class="filter-card">
+        <div class="card-header d-flex justify-content-between align-items-center">
+            <h2 class="mb-0"><i class="fas fa-filter me-2"></i>تصفية الشقق</h2>
+            <div>
+                <a href="export_excel.php?<?= http_build_query($_GET) ?>" class="btn btn-success btn-sm">
+                    <i class="fas fa-file-excel me-1"></i> تصدير Excel
+                </a>
+                <a href="export_pdf.php?<?= http_build_query($_GET) ?>" class="btn btn-danger btn-sm">
+                    <i class="fas fa-file-pdf me-1"></i> تصدير PDF
+                </a>
+            </div>
         </div>
-        <div class="col-md-3">
-            <select name="project_id" class="form-control" id="project_id">
-                <option value="">-- Project --</option>
-            </select>
+        <div class="card-body">
+            <form method="get" class="filter-form">
+                <div class="row g-3">
+                    <div class="col-md-4">
+                        <label class="form-label">المطور</label>
+                        <select name="developer_id" class="form-select" onchange="fetchProjects(this.value)">
+                            <option value="">-- اختر المطور --</option>
+                            <?php if ($developers): while($dev = $developers->fetch_assoc()): ?>
+                                <option value="<?= $dev['id'] ?>" <?= (isset($_GET['developer_id']) && $_GET['developer_id'] == $dev['id']) ? 'selected' : '' ?>>
+                                    <?= htmlspecialchars($dev['name']) ?>
+                                </option>
+                            <?php endwhile; endif; ?>
+                        </select>
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label">المشروع</label>
+                        <select name="project_id" class="form-select" id="project_id">
+                            <option value="">-- اختر المشروع --</option>
+                        </select>
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label">الموقع</label>
+                        <input type="text" name="location" class="form-control" placeholder="أدخل الموقع" value="<?= $_GET['location'] ?? '' ?>">
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label">عدد الغرف</label>
+                        <input type="number" name="bedrooms" class="form-control" placeholder="عدد الغرف" value="<?= $_GET['bedrooms'] ?? '' ?>">
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label">المساحة (متر مربع)</label>
+                        <div class="input-group">
+                            <input type="number" step="0.01" name="area_min" class="form-control" placeholder="من" value="<?= $_GET['area_min'] ?? '' ?>">
+                            <input type="number" step="0.01" name="area_max" class="form-control" placeholder="إلى" value="<?= $_GET['area_max'] ?? '' ?>">
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label">السعر</label>
+                        <div class="input-group">
+                            <input type="number" step="0.01" name="price_min" class="form-control" placeholder="من" value="<?= $_GET['price_min'] ?? '' ?>">
+                            <input type="number" step="0.01" name="price_max" class="form-control" placeholder="إلى" value="<?= $_GET['price_max'] ?? '' ?>">
+                        </div>
+                    </div>
+                    <div class="col-md-3 d-flex align-items-end">
+                        <div class="d-grid gap-2 w-100">
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-search me-1"></i> بحث
+                            </button>
+                            <a href="all_apartments.php" class="btn btn-secondary">
+                                <i class="fas fa-redo me-1"></i> إعادة تعيين
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </form>
         </div>
-        <div class="col-md-2"><input type="text" name="location" class="form-control" placeholder="Location" value="<?= $_GET['location'] ?? '' ?>"></div>
-        <div class="col-md-1"><input type="number" name="bedrooms" class="form-control" placeholder="Bedrooms" value="<?= $_GET['bedrooms'] ?? '' ?>"></div>
-        <div class="col-md-2"><input type="number" step="0.01" name="area_min" class="form-control" placeholder="Area Min" value="<?= $_GET['area_min'] ?? '' ?>"></div>
-        <div class="col-md-2"><input type="number" step="0.01" name="area_max" class="form-control" placeholder="Area Max" value="<?= $_GET['area_max'] ?? '' ?>"></div>
-        <div class="col-md-2"><input type="number" step="0.01" name="price_min" class="form-control" placeholder="Price Min" value="<?= $_GET['price_min'] ?? '' ?>"></div>
-        <div class="col-md-2"><input type="number" step="0.01" name="price_max" class="form-control" placeholder="Price Max" value="<?= $_GET['price_max'] ?? '' ?>"></div>
-        <div class="col-md-2">
-            <button type="submit" class="btn btn-primary">Filter</button>
-            <a href="all_apartments.php" class="btn btn-secondary">Reset</a>
-        </div>
-    </form>
-
-    <div class="mt-4">
-        <a href="export_excel.php?<?= http_build_query($_GET) ?>" class="btn btn-success">Download Excel</a>
-        <a href="export_pdf.php?<?= http_build_query($_GET) ?>" class="btn btn-danger">Download PDF</a>
     </div>
 
-    <table class="table table-bordered table-striped mt-3">
-        <thead>
-            <tr>
-                <th>Developer</th>
-                <th>Project</th>
-                <th>Unit</th>
-                <th>Floor</th>
-                <th>Bedrooms</th>
-                <th>Bathrooms</th>
-                <th>Area (sqm)</th>
-                <th>Price</th>
-                <th>Payment Type</th>
-            </tr>
-        </thead>
-        <tbody>
-            <?php if ($result && $result->num_rows > 0): ?>
-                <?php while ($row = $result->fetch_assoc()): ?>
-                    <tr>
-                        <td><?= htmlspecialchars($row['developer_name'] ?? '') ?></td>
-                        <td><?= htmlspecialchars($row['project_name'] ?? '') ?></td>
-                        <td><?= htmlspecialchars($row['unit_number'] ?? '') ?></td>
-                        <td><?= htmlspecialchars($row['floor'] ?? '') ?></td>
-                        <td><?= htmlspecialchars($row['bedrooms'] ?? '') ?></td>
-                        <td><?= htmlspecialchars($row['bathrooms'] ?? '') ?></td>
-                        <td><?= htmlspecialchars($row['area_sqm'] ?? '') ?></td>
-                        <td><?= htmlspecialchars(number_format($row['price'], 2)) ?></td>
-                        <td><?= htmlspecialchars($row['payment_type'] ?? '') ?></td>
-                    </tr>
-                <?php endwhile; ?>
-            <?php else: ?>
-                <tr><td colspan="9" class="text-center">No apartments found.</td></tr>
-            <?php endif; ?>
-        </tbody>
-    </table>
+    <div class="row g-4">
+        <?php if ($result && $result->num_rows > 0): ?>
+            <?php while ($row = $result->fetch_assoc()): ?>
+                <div class="col-md-6 col-lg-4">
+                    <div class="card apartment-card h-100">
+                        <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+                            <h5 class="mb-0"><?= htmlspecialchars($row['project_name'] ?? '') ?></h5>
+                            <span class="badge bg-light text-dark"><?= htmlspecialchars($row['payment_type'] ?? '') ?></span>
+                        </div>
+                        <div class="card-body">
+                            <div class="apartment-details">
+                                <div class="detail-item">
+                                    <i class="fas fa-building me-2"></i>
+                                    <span>المطور: <?= htmlspecialchars($row['developer_name'] ?? '') ?></span>
+                                </div>
+                                <div class="detail-item">
+                                    <i class="fas fa-door-open me-2"></i>
+                                    <span>رقم الوحدة: <?= htmlspecialchars($row['unit_number'] ?? '') ?></span>
+                                </div>
+                                <div class="detail-item">
+                                    <i class="fas fa-stairs me-2"></i>
+                                    <span>الطابق: <?= htmlspecialchars($row['floor'] ?? '') ?></span>
+                                </div>
+                                <div class="detail-item">
+                                    <i class="fas fa-bed me-2"></i>
+                                    <span>عدد الغرف: <?= htmlspecialchars($row['bedrooms'] ?? '') ?></span>
+                                </div>
+                                <div class="detail-item">
+                                    <i class="fas fa-bath me-2"></i>
+                                    <span>عدد الحمامات: <?= htmlspecialchars($row['bathrooms'] ?? '') ?></span>
+                                </div>
+                                <div class="detail-item">
+                                    <i class="fas fa-ruler-combined me-2"></i>
+                                    <span>المساحة: <?= htmlspecialchars($row['area_sqm'] ?? '') ?> متر مربع</span>
+                                </div>
+                                <div class="detail-item price">
+                                    <i class="fas fa-tag me-2"></i>
+                                    <span>السعر: <?= number_format($row['price'], 2) ?> ريال</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            <?php endwhile; ?>
+        <?php else: ?>
+            <div class="col-12">
+                <div class="alert alert-info text-center">
+                    <i class="fas fa-info-circle me-2"></i> لم يتم العثور على شقق.
+                </div>
+            </div>
+        <?php endif; ?>
+    </div>
 </div>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>

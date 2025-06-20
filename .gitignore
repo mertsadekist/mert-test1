@@ -1,8 +1,10 @@
 # Dependency directory
 /vendor/
 
-# Environment file
+# Environment and configuration files
 .env
+.env.*
+*.config
 
 # Temporary files
 *.log
@@ -10,3 +12,21 @@
 *.swp
 .DS_Store
 Thumbs.db
+
+# Cache and session files
+/cache/
+/sessions/
+
+# Uploaded files
+/uploads/
+
+# IDE specific files
+.idea/
+.vscode/
+*.sublime-workspace
+*.sublime-project
+
+# Backup files
+*.bak
+*.backup
+*~

@@ -1,65 +1,134 @@
-# IST Real Estate Stok Tracking System - By Mert Sadek
+# IST Real Estate Management System
 
-This project is a lightweight PHP administration panel used to manage real estate
-listings. It includes user authentication, role based permissions and tools for
-importing, viewing and exporting apartment data.
+## Overview
+A comprehensive real estate management system for managing properties, developers, and projects.
 
 ## Features
-
-- Manage developers and their projects.
-- Upload apartment data from Excel spreadsheets.
-- Filter apartments across projects by developer, location, bedrooms, area and price.
-- Export filtered results to Excel (via PhpSpreadsheet) or PDF (via Dompdf).
-- Role based access control with admin, editor and viewer roles.
+- User authentication and role-based access control
+- Property and project management
+- Excel file import/export functionality
+- PDF report generation
+- Secure file upload handling
+- Advanced search and filtering capabilities
 
 ## Requirements
-
-- **PHP**: 7.4 or newer (8.x is supported). The required version is defined in `composer.lock`.
-- **Composer**: used for installing dependencies.
-- **MySQL** (or compatible) database.
+- PHP >= 7.4
+- MySQL/MariaDB
+- Composer
+- Web server (Apache/Nginx)
 
 ## Installation
 
-1. Clone the repository and change into the project directory.
-2. Install PHP dependencies:
-   ```bash
-   composer install
-   ```
-3. Configure your database connection. Edit `db_connection.php` or define the following environment variables to override the defaults:
-   ```bash
-   DB_HOST     # Database hostname (default: localhost)
-   DB_DATABASE # Database name
-   DB_USER     # Database user
-   DB_PASS     # Database password
-   ```
-   The provided `db_connection.php` reads these variables if they exist; otherwise it falls back to the hard coded values.
-4. Create the database and tables required by the application. (No SQL dump is included.)
-
-## Running the application
-
-You can launch the application locally with PHP's built-in server:
-
+1. Clone the repository:
 ```bash
-php -S localhost:8000
+git clone [repository-url]
+cd ist-real-estate
 ```
 
-Then open [http://localhost:8000/index.php](http://localhost:8000/index.php) in your browser.
-
-## Bootstrapping an admin user
-
-The `create_admin.php` script can be run once to insert an initial administrator account. The script contains empty placeholders for the admin email and password; edit these values in the file before executing:
-
+2. Install dependencies:
 ```bash
-php create_admin.php
+composer install
 ```
 
-After logging in with this account, you can manage users from the dashboard.
+3. Create and configure environment file:
+```bash
+cp .env.example .env
+# Edit .env with your configuration
+```
 
+4. Set up the database:
+- Create a new MySQL database
+- Import the database schema from `database/schema.sql`
 
-## Roles
+5. Configure web server:
+- Point document root to the project's root directory
+- Ensure `uploads`, `logs`, and `cache` directories are writable
 
-The application defines three roles:
+6. Set up permissions:
+```bash
+chmod -R 755 .
+chmod -R 777 uploads/ logs/ cache/ sessions/
+```
 
-- **viewer** – can browse apartment listings.
-- **editor** – can manage projects, upload apartment spreadsheets and export data.
-- **admin** – full access including user management in addition to editor rights.
+## Configuration
+
+### Environment Variables
+- `DB_HOST`: Database host
+- `DB_DATABASE`: Database name
+- `DB_USER`: Database username
+- `DB_PASS`: Database password
+- `APP_DEBUG`: Enable/disable debug mode
+- `APP_URL`: Application URL
+
+### Security Settings
+- `SESSION_LIFETIME`: Session timeout in seconds
+- `MAX_LOGIN_ATTEMPTS`: Maximum failed login attempts
+- `LOCKOUT_TIME`: Account lockout duration
+
+### File Upload Settings
+- `MAX_UPLOAD_SIZE`: Maximum file upload size
+- `ALLOWED_FILE_TYPES`: Allowed file extensions
+
+## Security Features
+- CSRF protection
+- XSS prevention
+- SQL injection protection
+- Secure session handling
+- Input validation and sanitization
+- File upload security
+- Password hashing
+- Rate limiting
+
+## Directory Structure
+```
+├── assets/          # Static assets (CSS, JS, images)
+├── includes/        # Core PHP classes
+├── templates/       # HTML templates
+├── uploads/         # Uploaded files
+├── logs/            # Application logs
+├── cache/           # Cache files
+├── sessions/        # Session files
+├── database/        # Database schema and migrations
+└── vendor/          # Composer dependencies
+```
+
+## Development
+
+### Coding Standards
+This project follows PSR-12 coding standards. To check and fix code style:
+```bash
+composer cs-check  # Check code style
+composer cs-fix    # Fix code style
+```
+
+### Static Analysis
+Run PHPStan for static code analysis:
+```bash
+composer analyze
+```
+
+### Testing
+Run PHPUnit tests:
+```bash
+composer test
+```
+
+## Maintenance
+
+### Log Rotation
+Logs are automatically rotated daily and kept for 30 days.
+
+### Cache Management
+To clear application cache:
+```bash
+rm -rf cache/*
+```
+
+### Session Management
+Sessions are stored in the `sessions` directory and automatically cleaned up.
+
+## Support
+For support and bug reports, please create an issue in the project repository.
+
+## License
+This project is proprietary software. All rights reserved.
