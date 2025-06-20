@@ -52,6 +52,9 @@ chmod -R 777 uploads/ logs/ cache/ sessions/
 
 ## Configuration
 
+A sample `.env.example` file is included in the repository. Copy this file to
+`.env` and adjust the values to match your local setup.
+
 ### Environment Variables
 - `DB_HOST`: Database host
 - `DB_DATABASE`: Database name
