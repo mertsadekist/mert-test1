@@ -3,7 +3,8 @@
 
 # Environment and configuration files
 .env
-.env.*
+/.env.*
+!/.env.example
 *.config
 
 # Temporary files
