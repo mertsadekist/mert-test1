@@ -89,16 +89,30 @@ $stats = [
 
     // Get recent activities
     $activities = [];
-    $query = "SELECT activity_type, description, created_at 
-             FROM activities 
-             ORDER BY created_at DESC LIMIT 3";
-    $result = mysqli_query($conn, $query);
-    if (!$result) {
-        throw new Exception("خطأ في استعلام النشاطات: " . mysqli_error($conn));
-    }
-    while ($row = mysqli_fetch_assoc($result)) {
-        if (!$row) {
-            break;
+       $activitiesError = null;
+
+    // Check if the activities table exists
+    $tableCheck = mysqli_query($conn, "SHOW TABLES LIKE 'activities'");
+    if ($tableCheck && mysqli_num_rows($tableCheck) > 0) {
+        mysqli_free_result($tableCheck);
+
+        $query = "SELECT activity_type, description, created_at
+                 FROM activities
+                 ORDER BY created_at DESC LIMIT 3";
+        $result = mysqli_query($conn, $query);
+        if (!$result) {
+            throw new Exception("خطأ في استعلام النشاطات: " . mysqli_error($conn));
+        }
+        while ($row = mysqli_fetch_assoc($result)) {
+            if (!$row) {
+                break;
+            }
+        mysqli_free_result($result);
+    } else {
+        if ($tableCheck) {
+            mysqli_free_result($tableCheck);
+        }
+        $activitiesError = 'جدول النشاطات غير موجود.';
         }
         $activities[] = $row;
     }
@@ -298,7 +312,11 @@ $stats = [
                                 <p class="mb-1"><?php echo htmlspecialchars($activity['description']); ?></p>
                             </div>
                             <?php endforeach; ?>
-                            <?php if (empty($activities)): ?>
+                            <?php if (isset($activitiesError)): ?>
+                            <div class="list-group-item">
+                                <p class="mb-1 text-muted"><?php echo htmlspecialchars($activitiesError); ?></p>
+                            </div>
+                            <?php elseif (empty($activities)): ?>
                             <div class="list-group-item">
                                 <p class="mb-1 text-muted">لا توجد نشاطات حديثة</p>
                             </div>
